@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from collections import defaultdict
 from collections import Counter
 class Solution:
@@ -33,6 +33,29 @@ class Solution:
       for c in s: count[ord(c) - ord("a")] += 1 # Construct char counts as keys
       ret[tuple(count)].append(s)
     return ret.values()
+  # https://leetcode.com/problems/reorder-list/
+  class ListNode:
+    def __init__(self, val=1, next=None):
+      self.val = val
+      self.next = next
+  def reorderList(self, head: Optional[ListNode]) -> None:
+    fast, slow = head, head
+    while fast and fast.next:
+      slow, fast = slow.next, fast.next.next
+
+    cur = slow.next # Cut the two part
+    prev = slow.next = None
+    # start node of the second part
+    while cur: # Reverse the second part
+      tmp = cur.next
+      cur.next = prev
+      prev, cur = cur, tmp
+
+    first, second = head, prev
+    while second:
+      tmp1, tmp2 = first.next, second.next
+      first.next, second.next = second, tmp1
+      first, second = tmp1, tmp2
 
 def is_permutation(a: List[List[str]], b: List[List[str]]) -> bool:
   diff = 0
@@ -43,6 +66,13 @@ def is_permutation(a: List[List[str]], b: List[List[str]]) -> bool:
         diff -= 1
         break
   return diff == 0
+def create_linked_list(a: List[int]) -> Solution.ListNode:
+  head = Solution.ListNode(a[0])
+  cur = head
+  for i in a[1:]:
+    cur.next = Solution.ListNode(i)
+    cur = cur.next
+  return head
 
 def check(b: bool):
   if not b: raise Exception("Wrong Answer")
@@ -64,3 +94,17 @@ check(Counter(sol.twoSum([2,7,11,15], 9)) == Counter([0,1]) and
 
 print("Group Anagrams: ", end = '')
 check(is_permutation(sol.groupAnagrams(["eat","tea","tan","ate","nat","bat"]), [["bat"],["nat","tan"],["ate","eat","tea"]]))
+
+print("Reorder List: ", end = '')
+# check(sol.reorderList([1,2,3,4]) == Optional(Solution.Listnode[1,4,2,3]))
+head = create_linked_list([1,2,3,4])
+sol.reorderList(head)
+for i in [1,4,2,3]:
+  if not head.val == i: raise Exception("Wrong Answer")
+  head = head.next
+head = create_linked_list([1,2,3,4, 5])
+sol.reorderList(head)
+for i in [1,5,2,4,3]:
+  if not head.val == i: raise Exception("Wrong Answer")
+  head = head.next
+print("Accepted")
